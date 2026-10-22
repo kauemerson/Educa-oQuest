@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Educação Quest - Gamificação Escolar</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      background-color: #0b0f19;
+      color: #f1f5f9;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between custom-scrollbar">
+
+  <!-- TOP HEADER -->
+  <header class="bg-slate-900/90 border-b border-slate-800 sticky top-0 z-40 backdrop-blur-md px-4 py-3">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-white text-xl font-black shadow-lg shadow-purple-500/30">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-purple-400 to-indigo-300 bg-clip-text text-transparent">
+            Educação Quest
+          </h1>
+          <p class="text-[10px] text-slate-400">Jornada RPG de Sala de Aula</p>
+        </div>
+      </div>
+
+      <!-- STATUS DO USUÁRIO -->
+      <div id="user-top-info" class="hidden items-center gap-4">
+        <div class="flex items-center gap-3 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700">
+          <img id="top-user-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=QuestUser" class="w-8 h-8 rounded-full border border-purple-400" alt="Avatar">
+          <div class="text-left">
+            <div id="top-user-name" class="text-xs font-bold text-slate-200">Carregando...</div>
+            <div class="text-[10px] text-purple-400 flex items-center gap-1">
+              <span id="top-user-role" class="uppercase font-semibold">Aluno</span>
+              <span id="top-user-level-badge" class="bg-purple-900/60 text-purple-300 px-1.5 rounded text-[9px]">Lvl 1</span>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="app.logout()" title="Sair da Conta" class="p-2 text-slate-400 hover:text-red-400 transition">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="max-w-7xl w-full mx-auto p-4 md:p-6 flex-1">
+
+    <!-- TELA DE LOGIN / AUTENTICAÇÃO -->
+    <section id="screen-auth" class="min-h-[70vh] flex items-center justify-center">
+      <div class="glass-card max-w-md w-full p-8 rounded-2xl shadow-2xl text-center border border-slate-700">
+        <div class="w-16 h-16 bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/20 text-3xl">
+          <i class="fa-solid fa-gamepad text-white"></i>
+        </div>
+        <h2 class="text-2xl font-bold mb-1">Entrar no Educação Quest</h2>
+        <p class="text-slate-400 text-xs mb-6">Transforme suas tarefas escolares em uma aventura RPG!</p>
+
+        <button onclick="app.openGoogleAuthModal()" class="w-full bg-white text-slate-800 font-bold py-3 px-4 rounded-xl hover:bg-slate-100 transition shadow-md flex items-center justify-center gap-3 mb-3 text-sm">
+          <svg class="w-5 h-5" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          Entrar com Gmail / Google
+        </button>
+
+        <button onclick="app.quickGuestLogin()" class="w-full bg-slate-800 text-slate-300 font-semibold py-3 px-4 rounded-xl border border-slate-700 hover:bg-slate-700 transition flex items-center justify-center gap-2 text-xs">
+          <i class="fa-solid fa-user-ninja text-purple-400"></i> Entrar como Convidado
+        </button>
+      </div>
+    </section>
+
+    <!-- ONBOARDING (ESCOLHA DE PAPEL E MATÉRIAS) -->
+    <div id="modal-onboarding" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+      <div class="glass-card max-w-lg w-full p-6 rounded-2xl shadow-2xl border border-purple-500/30">
+        <h2 class="text-2xl font-bold mb-1 text-center">Configurar Seu Perfil</h2>
+        <p class="text-slate-400 text-xs text-center mb-6">Selecione seu tipo de perfil para começar.</p>
+
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div id="btn-role-student" onclick="app.selectRole('student')" class="border-2 border-purple-500 bg-purple-950/30 p-4 rounded-xl text-center cursor-pointer hover:border-purple-400 transition">
+            <i class="fa-solid fa-user-graduate text-3xl text-purple-400 mb-2"></i>
+            <div class="font-bold text-sm">Sou Aluno</div>
+            <div class="text-[10px] text-slate-400 mt-1">Perfil individual, recrutar professor, cumprir quests e trocar XP.</div>
+          </div>
+          <div id="btn-role-teacher" onclick="app.selectRole('teacher')" class="border-2 border-slate-700 bg-slate-800/40 p-4 rounded-xl text-center cursor-pointer hover:border-purple-400 transition">
+            <i class="fa-solid fa-chalkboard-user text-3xl text-indigo-400 mb-2"></i>
+            <div class="font-bold text-sm">Sou Professor</div>
+            <div class="text-[10px] text-slate-400 mt-1">Gerar código único, criar quests e monitorar alunos.</div>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-xs font-semibold text-slate-300 mb-2">Matérias de Interesse / Atuação:</label>
+          <div id="subject-checkboxes" class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto custom-scrollbar p-1">
+            <!-- Populated JS -->
+          </div>
+        </div>
+
+        <button onclick="app.completeOnboarding()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3 rounded-xl transition shadow-lg text-sm">
+          Concluir e Acessar Painel <i class="fa-solid fa-arrow-right ml-1"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN APP DASHBOARD -->
+    <div id="screen-dashboard" class="hidden space-y-6">
+
+      <!-- MENU DE ABAS DE NAVEGAÇÃO -->
+      <nav class="flex items-center gap-2 border-b border-slate-800 pb-3 overflow-x-auto custom-scrollbar">
+        <button onclick="app.switchTab('quests')" id="tab-btn-quests" class="tab-active px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-purple-600 text-white shadow-lg shadow-purple-600/30">
+          <i class="fa-solid fa-scroll"></i> Quests & Perfil do Aluno
+        </button>
+        <button onclick="app.switchTab('teacher')" id="tab-btn-teacher" class="tab-inactive px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-slate-800/60 text-slate-400 hover:text-slate-200">
+          <i class="fa-solid fa-chalkboard-user"></i> Painel do Professor
+        </button>
+        <button onclick="app.switchTab('rewards')" id="tab-btn-rewards" class="tab-inactive px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-slate-800/60 text-slate-400 hover:text-slate-200">
+          <i class="fa-solid fa-store"></i> Loja de Recompensas
+        </button>
+        <button onclick="app.switchTab('analytics')" id="tab-btn-analytics" class="tab-inactive px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-slate-800/60 text-slate-400 hover:text-slate-200">
+          <i class="fa-solid fa-chart-line"></i> Resultados
+        </button>
+        <button onclick="app.switchTab('settings')" id="tab-btn-settings" class="tab-inactive px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-slate-800/60 text-slate-400 hover:text-slate-200 ml-auto">
+          <i class="fa-solid fa-gear"></i> Perfil
+        </button>
+      </nav>
+
+      <!-- ABA 1: PERFIL DO ALUNO & QUESTS -->
+      <div id="tab-content-quests" class="space-y-6">
+
+        <!-- CARTÃO DO ALUNO / HERO CARD -->
+        <div class="glass-card p-6 rounded-2xl border border-purple-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div class="flex items-center gap-4">
+            <img id="dashboard-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=QuestUser" class="w-16 h-16 rounded-2xl border-2 border-purple-500 bg-slate-900 p-1 shadow-md" alt="Avatar">
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 id="dashboard-user-name" class="text-xl font-bold text-white">Nome do Aluno</h2>
+                <span id="dashboard-user-role-badge" class="bg-purple-900/80 text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-purple-700">PERFIL DO ALUNO</span>
+              </div>
+              <p id="dashboard-user-status" class="text-xs text-slate-400 mt-1">
+                Professor Vinculado: <span id="bind-status-text" class="text-emerald-400 font-mono font-bold">Nenhum (Não recrutado)</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- BARRA DE XP E NÍVEL INDIVIDUAL -->
+          <div class="w-full md:w-72 space-y-1.5">
+            <div class="flex justify-between items-center text-xs">
+              <span class="font-bold text-purple-300 flex items-center gap-1">
+                <i class="fa-solid fa-crown text-yellow-400"></i> Nível <span id="current-level-num">1</span>
+              </span>
+              <span class="text-slate-400 font-mono"><span id="current-xp-num">0</span> / <span id="next-level-xp-num">100</span> XP</span>
+            </div>
+            <div class="w-full h-3 bg-slate-900 rounded-full overflow-hidden border border-slate-700 p-0.5">
+              <div id="xp-progress-bar" class="h-full bg-gradient-to-r from-purple-500 to-indigo-400 rounded-full transition-all duration-500" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RECRUTAMENTO EXCLUSIVO DO PERFIL DO ALUNO -->
+        <div id="student-recruitment-box" class="glass-card p-5 rounded-xl border border-emerald-500/40 bg-emerald-950/10 space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl shrink-0">
+              <i class="fa-solid fa-user-plus"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-white">Área de Recrutamento do Aluno</h3>
+              <p class="text-xs text-slate-300">Digite ou cole o código único fornecido pelo seu professor para vincular sua conta.</p>
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-center gap-2 pt-1">
+            <input type="text" id="input-bind-code" placeholder="Cole aqui o código do professor (ex: T2F9K)" class="bg-slate-900 border border-slate-700 px-4 py-2 rounded-xl text-xs font-mono text-white focus:outline-none focus:border-emerald-500 w-full sm:flex-1 uppercase">
+            <button onclick="app.bindTeacherCode()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2 rounded-xl text-xs transition w-full sm:w-auto shadow-lg shadow-emerald-600/20">
+              Vincular Professor
+            </button>
+          </div>
+        </div>
+
+        <!-- FILTROS E AÇÃO DE CRIAR PRÓPRIO DESAFIO -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h3 class="text-base font-bold flex items-center gap-2">
+            <i class="fa-solid fa-list-check text-purple-400"></i> Suas Quests & Desafios
+          </h3>
+
+          <div class="flex items-center gap-2">
+            <select id="filter-subject" onchange="app.renderQuests()" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-purple-500">
+              <option value="ALL">Todas as Matérias</option>
+            </select>
+
+            <button onclick="app.openCustomChallengeModal()" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5">
+              <i class="fa-solid fa-plus"></i> Criar Meu Desafio
+            </button>
+          </div>
+        </div>
+
+        <!-- GRID DE QUESTS -->
+        <div id="quests-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- ABA 2: PAINEL DO PROFESSOR -->
+      <div id="tab-content-teacher" class="hidden space-y-6">
+        <div class="glass-card p-6 rounded-2xl border border-indigo-500/30 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold flex items-center gap-2">
+              <i class="fa-solid fa-chalkboard-user text-indigo-400"></i> Painel do Professor
+            </h2>
+            <p class="text-slate-400 text-xs mt-1">Este é o seu código de turma gerado exclusivamente para você. Compartilhe-o com os alunos.</p>
+          </div>
+
+          <div class="flex items-center gap-2 bg-slate-900/90 p-2.5 rounded-xl border border-indigo-500/40 w-full lg:w-auto">
+            <div class="text-xs">
+              <span class="text-slate-400 block text-[10px]">SEU CÓDIGO EXCLUSIVO</span>
+              <span id="teacher-class-code" class="font-mono font-bold text-indigo-300 text-sm">---</span>
+            </div>
+            <button onclick="app.copyRecruitmentLink()" class="ml-auto bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
+              <i class="fa-solid fa-copy"></i> Copiar Código
+            </button>
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center">
+          <h3 class="text-base font-bold flex items-center gap-2">
+            <i class="fa-solid fa-users text-indigo-400"></i> Alunos Vinculados ao Meu Código
+          </h3>
+          <button onclick="app.openCreateQuestModal()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition flex items-center gap-2">
+            <i class="fa-solid fa-plus"></i> Criar Nova Quest
+          </button>
+        </div>
+
+        <!-- LISTA DE ALUNOS MONITORADOS -->
+        <div id="teacher-student-roster" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- ABA 3: LOJA DE RECOMPENSAS -->
+      <div id="tab-content-rewards" class="hidden space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-xl font-bold flex items-center gap-2">
+              <i class="fa-solid fa-store text-amber-400"></i> Loja de Recompensas
+            </h2>
+            <p class="text-slate-400 text-xs mt-0.5">Troque seu XP por benefícios reais na sala de aula.</p>
+          </div>
+          <button id="btn-add-reward" onclick="app.openAddRewardModal()" class="hidden bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5">
+            <i class="fa-solid fa-plus"></i> Nova Recompensa
+          </button>
+        </div>
+
+        <div id="rewards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Populated JS -->
+        </div>
+      </div>
+
+      <!-- ABA 4: RESULTADOS (ZERADOS DE INÍCIO) -->
+      <div id="tab-content-analytics" class="hidden space-y-6">
+        <div class="glass-card p-6 rounded-2xl border border-slate-700">
+          <h2 class="text-xl font-bold mb-1 flex items-center gap-2">
+            <i class="fa-solid fa-chart-line text-emerald-400"></i> Eficácia e Desempenho do Aluno
+          </h2>
+          <p class="text-slate-400 text-xs mb-6">Métricas dinâmicas calculadas conforme o progresso e tarefas concluídas pelo aluno.</p>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 text-center">
+              <span class="text-xs text-slate-400 uppercase font-semibold">Taxa de Conclusão</span>
+              <div id="analytic-rate" class="text-2xl font-black text-slate-400 mt-1">0%</div>
+            </div>
+            <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 text-center">
+              <span class="text-xs text-slate-400 uppercase font-semibold">Quests Concluídas</span>
+              <div id="analytic-completed-count" class="text-2xl font-black text-purple-400 mt-1">0 / 0</div>
+            </div>
+            <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 text-center">
+              <span class="text-xs text-slate-400 uppercase font-semibold">XP Ganho Acumulado</span>
+              <div id="analytic-total-xp" class="text-2xl font-black text-amber-400 mt-1">0 XP</div>
+            </div>
+          </div>
+
+          <div class="h-64 w-full">
+            <canvas id="efficacyChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA 5: PERFIL E CONFIGURAÇÕES -->
+      <div id="tab-content-settings" class="hidden space-y-6">
+        <div class="glass-card p-6 rounded-2xl border border-slate-700 max-w-xl mx-auto">
+          <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-user-gear text-purple-400"></i> Configurações da Conta
+          </h2>
+
+          <form onsubmit="app.saveProfileSettings(event)" class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Seu Nome:</label>
+              <input type="text" id="setting-user-name" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Papel:</label>
+              <select id="setting-user-role" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+                <option value="student">Aluno</option>
+                <option value="teacher">Professor</option>
+              </select>
+            </div>
+
+            <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 rounded-xl transition text-xs">
+              Salvar Alterações
+            </button>
+          </form>
+
+          <hr class="border-slate-800 my-6">
+
+          <div class="bg-red-950/20 border border-red-800/40 p-4 rounded-xl">
+            <h3 class="text-xs font-bold text-red-400 flex items-center gap-2">
+              <i class="fa-solid fa-triangle-exclamation"></i> Zerar Progresso
+            </h3>
+            <p class="text-slate-400 text-[11px] mt-1 mb-3">Restaura a conta do aluno para 0 XP e Nível 1.</p>
+            <button onclick="app.resetAllProgress()" class="bg-red-600 hover:bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">
+              Resetar Meu Progresso
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- MODAL: LOGIN COM GMAIL -->
+  <div id="modal-google-auth" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white text-slate-800 max-w-sm w-full p-6 rounded-2xl shadow-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <span class="font-bold text-sm">Fazer login com o Google</span>
+        <button onclick="app.closeGoogleModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="space-y-2 mb-4">
+        <div onclick="app.loginWithGmail('aluno@gmail.com', 'Lucas Aluno')" class="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+          <div class="w-8 h-8 rounded-full bg-purple-600 text-white font-bold flex items-center justify-center text-xs">L</div>
+          <div>
+            <div class="text-xs font-bold text-slate-800">Lucas Aluno</div>
+            <div class="text-[10px] text-slate-500">lucas.aluno@gmail.com</div>
+          </div>
+        </div>
+
+        <div onclick="app.loginWithGmail('professor@gmail.com', 'Prof. Roberto')" class="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+          <div class="w-8 h-8 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">R</div>
+          <div>
+            <div class="text-xs font-bold text-slate-800">Prof. Roberto</div>
+            <div class="text-[10px] text-slate-500">prof.roberto@gmail.com</div>
+          </div>
+        </div>
+      </div>
+
+      <form onsubmit="app.handleCustomGmailSubmit(event)" class="space-y-2 pt-2 border-t border-slate-100">
+        <label class="block text-[11px] font-semibold text-slate-600">Ou digite seu Gmail:</label>
+        <input type="email" id="input-custom-gmail" placeholder="seu.nome@gmail.com" required class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs focus:outline-none focus:border-purple-600">
+        <button type="submit" class="w-full bg-slate-900 text-white font-semibold py-2 rounded-lg text-xs hover:bg-slate-800 transition">
+          Acessar Conta
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CRIAR DESAFIO PRÓPRIO (ALUNO) -->
+  <div id="modal-custom-challenge" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="glass-card max-w-md w-full p-6 rounded-2xl shadow-2xl border border-purple-500/30">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-base font-bold flex items-center gap-2 text-purple-300">
+          <i class="fa-solid fa-bullseye"></i> Criar Meu Próprio Desafio
+        </h3>
+        <button onclick="app.closeCustomChallengeModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form onsubmit="app.handleCreateCustomChallenge(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Título do Desafio:</label>
+          <input type="text" id="custom-title" required placeholder="Ex: Estudar 30 min de Biologia" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Matéria:</label>
+          <select id="custom-subject" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+            <!-- Populated -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Descrição:</label>
+          <textarea id="custom-desc" rows="2" required placeholder="Defina sua meta pessoal..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"></textarea>
+        </div>
+
+        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 rounded-xl transition text-xs shadow-lg">
+          Adicionar à Minha Lista
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CRIAR QUEST (PROFESSOR) -->
+  <div id="modal-create-quest" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="glass-card max-w-md w-full p-6 rounded-2xl shadow-2xl border border-indigo-500/30">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-base font-bold flex items-center gap-2">
+          <i class="fa-solid fa-scroll text-indigo-400"></i> Criar Nova Quest para a Turma
+        </h3>
+        <button onclick="app.closeCreateQuestModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form onsubmit="app.handleCreateQuest(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Título da Quest:</label>
+          <input type="text" id="quest-title" required placeholder="Ex: Exercícios da pág 42" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Matéria:</label>
+            <select id="quest-subject" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">XP:</label>
+            <input type="number" id="quest-xp" required min="10" max="500" value="50" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Instruções:</label>
+          <textarea id="quest-desc" rows="3" required placeholder="Instruções de entrega..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"></textarea>
+        </div>
+
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 rounded-xl transition text-xs shadow-lg">
+          Publicar Quest
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT PRINCIPAL -->
+  <script>
+    const SUBJECTS = [
+      { id: 'matematica', name: 'Matemática', icon: 'fa-calculator', color: 'text-blue-400' },
+      { id: 'portugues', name: 'Língua Portuguesa', icon: 'fa-book-open', color: 'text-amber-400' },
+      { id: 'historia', name: 'História', icon: 'fa-landmark', color: 'text-yellow-500' },
+      { id: 'geografia', name: 'Geografia', icon: 'fa-earth-americas', color: 'text-emerald-400' },
+      { id: 'fisica', name: 'Física', icon: 'fa-atom', color: 'text-purple-400' },
+      { id: 'quimica', name: 'Química', icon: 'fa-vial', color: 'text-pink-400' },
+      { id: 'biologia', name: 'Biologia', icon: 'fa-dna', color: 'text-green-400' },
+      { id: 'ingles', name: 'Inglês', icon: 'fa-language', color: 'text-cyan-400' },
+      { id: 'redacao', name: 'Redação', icon: 'fa-pen-nib', color: 'text-rose-400' },
+      { id: 'robotica', name: 'Robótica', icon: 'fa-robot', color: 'text-sky-400' }
+    ];
+
+    const DEFAULT_REWARDS = [
+      { id: 'r1', title: 'Escolher o lugar na sala por 1 semana', cost: 150, icon: 'fa-chair' },
+      { id: 'r2', title: 'Extensão de prazo (+2 dias) em dever', cost: 250, icon: 'fa-clock' },
+      { id: 'r3', title: '+1,0 ponto extra na média do trimestre', cost: 500, icon: 'fa-star' }
+    ];
+
+    class EducacaoQuestApp {
+      constructor() {
+        this.currentUser = null;
+        this.quests = JSON.parse(localStorage.getItem('eq_quests')) || [];
+        this.rewards = JSON.parse(localStorage.getItem('eq_rewards')) || DEFAULT_REWARDS;
+        this.studentsRoster = JSON.parse(localStorage.getItem('eq_students_roster')) || [];
+        this.selectedRole = 'student';
+        this.chartInstance = null;
+      }
+
+      init() {
+        this.populateSubjectOptions();
+        const saved = localStorage.getItem('eq_active_user');
+        if (saved) {
+          this.currentUser = JSON.parse(saved);
+          this.showDashboard();
+        }
+      }
+
+      populateSubjectOptions() {
+        const container = document.getElementById('subject-checkboxes');
+        container.innerHTML = SUBJECTS.map(s => `
+          <label class="flex items-center gap-2 bg-slate-900/80 p-2 rounded-lg border border-slate-800 text-[11px] cursor-pointer hover:border-purple-500/50">
+            <input type="checkbox" value="${s.id}" class="subject-checkbox rounded bg-slate-800 text-purple-600">
+            <i class="fa-solid ${s.icon} ${s.color}"></i>
+            <span class="truncate">${s.name}</span>
+          </label>
+        `).join('');
+
+        const options = SUBJECTS.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+        document.getElementById('filter-subject').innerHTML = `<option value="ALL">Todas as Matérias</option>` + options;
+        document.getElementById('quest-subject').innerHTML = options;
+        document.getElementById('custom-subject').innerHTML = options;
+      }
+
+      openGoogleAuthModal() { document.getElementById('modal-google-auth').classList.remove('hidden'); }
+      closeGoogleModal() { document.getElementById('modal-google-auth').classList.add('hidden'); }
+
+      loginWithGmail(email, name) {
+        this.closeGoogleModal();
+        this.startOnboarding(email, name);
+      }
+
+      handleCustomGmailSubmit(e) {
+        e.preventDefault();
+        const email = document.getElementById('input-custom-gmail').value.trim();
+        this.closeGoogleModal();
+        this.startOnboarding(email, email.split('@')[0]);
+      }
+
+      quickGuestLogin() {
+        this.startOnboarding('convidado@quest.com', 'Usuário Convidado');
+      }
+
+      startOnboarding(email, name) {
+        this.tempUser = { email, name, avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${name}`, level: 1, xp: 0, completedQuests: [] };
+        document.getElementById('screen-auth').classList.add('hidden');
+        document.getElementById('modal-onboarding').classList.remove('hidden');
+      }
+
+      selectRole(role) {
+        this.selectedRole = role;
+        document.getElementById('btn-role-student').className = role === 'student' ? "border-2 border-purple-500 bg-purple-950/30 p-4 rounded-xl text-center cursor-pointer" : "border-2 border-slate-700 bg-slate-800/40 p-4 rounded-xl text-center cursor-pointer";
+        document.getElementById('btn-role-teacher').className = role === 'teacher' ? "border-2 border-indigo-500 bg-indigo-950/30 p-4 rounded-xl text-center cursor-pointer" : "border-2 border-slate-700 bg-slate-800/40 p-4 rounded-xl text-center cursor-pointer";
+      }
+
+      completeOnboarding() {
+        // Gera um código único e aleatório para cada professor (ex: T-9K2X)
+        let classCode = null;
+        if (this.selectedRole === 'teacher') {
+          const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
+          classCode = `PRO-${randomPart}`;
+        }
+
+        this.currentUser = { ...this.tempUser, role: this.selectedRole, classCode: classCode };
+        localStorage.setItem('eq_active_user', JSON.stringify(this.currentUser));
+        document.getElementById('modal-onboarding').classList.add('hidden');
+        this.showDashboard();
+      }
+
+      showDashboard() {
+        document.getElementById('screen-auth').classList.add('hidden');
+        document.getElementById('screen-dashboard').classList.remove('hidden');
+        document.getElementById('user-top-info').classList.remove('hidden');
+
+        this.updateHeaderUI();
+        this.renderQuests();
+        this.renderTeacherRoster();
+        this.renderRewards();
+        this.updateAnalyticsUI();
+
+        this.switchTab(this.currentUser.role === 'teacher' ? 'teacher' : 'quests');
+      }
+
+      updateHeaderUI() {
+        document.getElementById('top-user-avatar').src = this.currentUser.avatar;
+        document.getElementById('top-user-name').innerText = this.currentUser.name;
+        document.getElementById('top-user-role').innerText = this.currentUser.role === 'teacher' ? 'Professor' : 'Aluno';
+        document.getElementById('dashboard-avatar').src = this.currentUser.avatar;
+        document.getElementById('dashboard-user-name').innerText = this.currentUser.name;
+
+        document.getElementById('bind-status-text').innerText = this.currentUser.boundCode || 'Nenhum (Não recrutado)';
+        document.getElementById('current-level-num').innerText = this.currentUser.level || 1;
+        document.getElementById('current-xp-num').innerText = this.currentUser.xp || 0;
+        document.getElementById('next-level-xp-num').innerText = (this.currentUser.level || 1) * 100;
+        
+        const pct = Math.min(100, Math.floor(((this.currentUser.xp || 0) / ((this.currentUser.level || 1) * 100)) * 100));
+        document.getElementById('xp-progress-bar').style.width = `${pct}%`;
+
+        // Exibe o código único do professor no painel dele
+        if (this.currentUser.role === 'teacher') {
+          if (!this.currentUser.classCode) {
+            const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
+            this.currentUser.classCode = `PRO-${randomPart}`;
+            localStorage.setItem('eq_active_user', JSON.stringify(this.currentUser));
+          }
+          document.getElementById('teacher-class-code').innerText = this.currentUser.classCode;
+        }
+
+        const studentBox = document.getElementById('student-recruitment-box');
+        if (studentBox) {
+          if (this.currentUser.role === 'student') {
+            studentBox.classList.remove('hidden');
+          } else {
+            studentBox.classList.add('hidden');
+          }
+        }
+      }
+
+      switchTab(tab) {
+        ['quests', 'teacher', 'rewards', 'analytics', 'settings'].forEach(t => {
+          document.getElementById(`tab-content-${t}`).classList.add('hidden');
+          document.getElementById(`tab-btn-${t}`).className = "px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-slate-800/60 text-slate-400";
+        });
+        document.getElementById(`tab-content-${tab}`).classList.remove('hidden');
+        document.getElementById(`tab-btn-${tab}`).className = "px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-purple-600 text-white shadow-lg";
+
+        if (tab === 'analytics') {
+          this.updateAnalyticsUI();
+        }
+      }
+
+      bindTeacherCode() {
+        const code = document.getElementById('input-bind-code').value.trim().toUpperCase();
+        if (!code) return;
+
+        this.currentUser.boundCode = code;
+        localStorage.setItem('eq_active_user', JSON.stringify(this.currentUser));
+
+        if (!this.studentsRoster.some(s => s.email === this.currentUser.email)) {
+          this.studentsRoster.push(this.currentUser);
+          localStorage.setItem('eq_students_roster', JSON.stringify(this.studentsRoster));
+        }
+
+        this.updateHeaderUI();
+        alert(`✅ Recrutamento concluído! Vinculado ao código do professor (${code}).`);
+      }
+
+      renderQuests() {
+        const grid = document.getElementById('quests-grid');
+        if (!this.quests.length) {
+          grid.innerHTML = `<div class="col-span-full text-center py-8 text-slate-500 text-xs">Nenhuma quest cadastrada. Clique em "Criar Meu Desafio" acima!</div>`;
+          return;
+        }
+
+        const completedIds = this.currentUser.completedQuests || [];
+
+        grid.innerHTML = this.quests.map(q => {
+          const isDone = completedIds.includes(q.id);
+          return `
+            <div class="glass-card p-4 rounded-xl border ${isDone ? 'border-emerald-500/40 opacity-75' : 'border-slate-800'} flex flex-col justify-between">
+              <div>
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-900 text-purple-400">${q.subject.toUpperCase()}</span>
+                  <span class="text-xs font-black text-amber-400">+${q.xp} XP</span>
+                </div>
+                <h4 class="font-bold text-xs text-white mb-1">${q.title}</h4>
+                <p class="text-[11px] text-slate-400 mb-3">${q.desc}</p>
+              </div>
+              ${isDone ? 
+                `<div class="text-xs font-bold text-emerald-400 text-center py-1.5 bg-emerald-950/30 rounded-lg"><i class="fa-solid fa-check"></i> Concluída</div>` : 
+                `<button onclick="app.completeQuest('${q.id}', ${q.xp})" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-1.5 rounded-lg text-xs transition">Concluir Quest</button>`
+              }
+            </div>
+          `;
+        }).join('');
+      }
+
+      completeQuest(id, xp) {
+        if (!this.currentUser.completedQuests) this.currentUser.completedQuests = [];
+        if (!this.currentUser.completedQuests.includes(id)) {
+          this.currentUser.completedQuests.push(id);
+        }
+
+        this.currentUser.xp = (this.currentUser.xp || 0) + xp;
+        if (this.currentUser.xp >= (this.currentUser.level * 100)) {
+          this.currentUser.level += 1;
+          alert(`🎉 Nível Subiu! Agora você está no Nível ${this.currentUser.level}!`);
+        }
+        localStorage.setItem('eq_active_user', JSON.stringify(this.currentUser));
+        this.updateHeaderUI();
+        this.renderQuests();
+        this.updateAnalyticsUI();
+      }
+
+      renderTeacherRoster() {
+        const grid = document.getElementById('teacher-student-roster');
+        const myCode = this.currentUser.classCode;
+        
+        // Filtra somente alunos que usaram o código específico deste professor logado
+        const myStudents = this.studentsRoster.filter(s => s.boundCode === myCode);
+
+        if (!myStudents.length) {
+          grid.innerHTML = `<div class="col-span-full text-center py-8 text-slate-500 text-xs">Nenhum aluno utilizou o seu código (${myCode}) ainda.</div>`;
+          return;
+        }
+
+        grid.innerHTML = myStudents.map(s => `
+          <div class="glass-card p-3 rounded-xl border border-slate-800 flex items-center gap-3">
+            <img src="${s.avatar}" class="w-9 h-9 rounded-full border border-purple-500" alt="Avatar">
+            <div class="flex-1 min-w-0">
+              <div class="font-bold text-xs text-white truncate">${s.name}</div>
+              <div class="text-[10px] text-slate-400">Nível ${s.level || 1} • ${s.xp || 0} XP</div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      renderRewards() {
+        document.getElementById('rewards-grid').innerHTML = this.rewards.map(r => `
+          <div class="glass-card p-4 rounded-xl border border-slate-800">
+            <h4 class="font-bold text-xs text-white mb-1">${r.title}</h4>
+            <div class="text-xs text-amber-400 font-bold mb-3">${r.cost} XP</div>
+            <button onclick="app.claimReward(${r.cost})" class="w-full bg-slate-800 hover:bg-amber-600 hover:text-white text-slate-300 font-bold py-1.5 rounded-lg text-xs transition">
+              Resgatar
+            </button>
+          </div>
+        `).join('');
+      }
+
+      claimReward(cost) {
+        if ((this.currentUser.xp || 0) < cost) return alert('XP Insuficiente!');
+        this.currentUser.xp -= cost;
+        localStorage.setItem('eq_active_user', JSON.stringify(this.currentUser));
+        this.updateHeaderUI();
+        alert('🎁 Recompensa Resgatada!');
+      }
+
+      openCustomChallengeModal() { document.getElementById('modal-custom-challenge').classList.remove('hidden'); }
+      closeCustomChallengeModal() { document.getElementById('modal-custom-challenge').classList.add('hidden'); }
+
+      handleCreateCustomChallenge(e) {
+        e.preventDefault();
+        const newQuest = {
+          id: 'q_' + Date.now(),
+          title: document.getElementById('custom-title').value,
+          subject: document.getElementById('custom-subject').value,
+          desc: document.getElementById('custom-desc').value,
+          xp: 40
+        };
+        this.quests.unshift(newQuest);
+        localStorage.setItem('eq_quests', JSON.stringify(this.quests));
+        this.closeCustomChallengeModal();
+        this.renderQuests();
+        this.updateAnalyticsUI();
+      }
+
+      openCreateQuestModal() { document.getElementById('modal-create-quest').classList.remove('hidden'); }
+      closeCreateQuestModal() { document.getElementById('modal-create-quest').classList.add('hidden'); }
+
+      handleCreateQuest(e) {
+        e.preventDefault();
+        const newQuest = {
+          id: 'q_' + Date.now(),
+          title: document.getElementById('quest-title').value,
+          subject: document.getElementById('quest-subject').value,
+          xp: parseInt(document.getElementById('quest-xp').value),
+          desc: document.getElementById('quest-desc').value
+        };
+        this.quests.unshift(newQuest);
+        localStorage.setItem('eq_quests', JSON.stringify(this.quests));
+        this.closeCreateQuestModal();
+        this.renderQuests();
+        this.updateAnalyticsUI();
+      }
+
+      copyRecruitmentLink() {
+        const code = this.currentUser.classCode || 'PRO-TURMA';
+        navigator.clipboard.writeText(code).then(() => alert(`🔗 Código copiado: ${code}`));
+      }
+
+      updateAnalyticsUI() {
+        const totalQuests = this.quests.length;
+        const completedCount = (this.currentUser && this.currentUser.completedQuests) ? this.currentUser.completedQuests.length : 0;
+        const totalXP = (this.currentUser && this.currentUser.xp) ? this.currentUser.xp : 0;
+        
+        const completionRate = totalQuests > 0 ? Math.round((completedCount / totalQuests) * 100) : 0;
+
+        document.getElementById('analytic-rate').innerText = `${completionRate}%`;
+        document.getElementById('analytic-completed-count').innerText = `${completedCount} / ${totalQuests}`;
+        document.getElementById('analytic-total-xp').innerText = `${totalXP} XP`;
+
+        this.initEfficacyChart(completionRate, completedCount, totalQuests - completedCount);
+      }
+
+      resetAllProgress() {
+        if (confirm('Deseja zerar todo o progresso do aluno?')) {
+          this.currentUser.xp = 0;
+          this.currentUser.level = 1;
+          this.currentUser.completedQuests = [];
+          localStorage.setItem('eq_active_user', JSON.stringify(this.currentUser));
+          this.updateHeaderUI();
+          this.renderQuests();
+          this.updateAnalyticsUI();
+          alert('Progresso resetado para 0 XP e Nível 1!');
+        }
+      }
+
+      logout() {
+        localStorage.removeItem('eq_active_user');
+        location.reload();
+      }
+
+      initEfficacyChart(ratePct = 0, doneCount = 0, pendingCount = 0) {
+        const ctx = document.getElementById('efficacyChart');
+        if (!ctx) return;
+
+        if (this.chartInstance) {
+          this.chartInstance.destroy();
+        }
+
+        this.chartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: ['Quests Concluídas', 'Quests Pendentes'],
+            datasets: [{
+              label: 'Quantidade de Quests',
+              data: [doneCount, pendingCount],
+              backgroundColor: ['rgba(16, 185, 129, 0.7)', 'rgba(239, 68, 68, 0.7)'],
+              borderColor: ['#10B981', '#EF4444'],
+              borderWidth: 2,
+              borderRadius: 8
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: { color: '#94a3b8', stepSize: 1 },
+                grid: { color: 'rgba(255, 255, 255, 0.05)' }
+              },
+              x: {
+                ticks: { color: '#94a3b8' },
+                grid: { display: false }
+              }
+            },
+            plugins: {
+              legend: { display: false }
+            }
+          }
+        });
+      }
+    }
+
+    const app = new EducacaoQuestApp();
+    window.onload = () => app.init();
+  </script>
+</body>
+</html>
